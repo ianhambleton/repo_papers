@@ -1,0 +1,357 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}X:\OneDrive - The University of the West Indies\repo_ianhambleton\repo_papers\papers2019_duedates.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 3 Jun 2019, 08:03:06
+{txt}
+{com}. ** HEADER -----------------------------------------------------
+. 
+. import excel using "`datapath'/papers_duedates.xlsx", sheet("due_dates_2019jun") first
+{res}{txt}
+{com}. keep if due_date<=d(1jan2020)
+{txt}(7 observations deleted)
+
+{com}. 
+. ** Order by date, 
+. ** then dates equidistant through time period for plotting
+. ** creating artificial but broadly accurate times for each project
+. gen mind = d(01jan2019)
+{txt}
+{com}. gen maxd = d(31dec2019) 
+{txt}
+{com}. gen timeframe = int((maxd - mind)/_N)
+{txt}
+{com}. sort due_date paper
+{txt}
+{com}. gen timeframe2 = sum(timeframe) 
+{txt}
+{com}. gen date2 = mind + timeframe2
+{txt}
+{com}. 
+. ** Paper progress
+. gen progress2 = 1 if progress=="not started"
+{txt}(18 missing values generated)
+
+{com}. replace progress2 = 2 if progress == "planned"
+{txt}(1 real change made)
+
+{com}. replace progress2 = 3 if progress == "analysed"
+{txt}(5 real changes made)
+
+{com}. replace progress2 = 4 if progress == "drafted"
+{txt}(5 real changes made)
+
+{com}. replace progress2 = 5 if progress == "submitted"
+{txt}(6 real changes made)
+
+{com}. replace progress2 = 6 if progress == "accepted"
+{txt}(1 real change made)
+
+{com}. label define progress2 1 "not started" 2 "planned" 3 "analysed" 4 "drafted" 5 "submitted" 6 "accepted"
+{txt}
+{com}. label values progress2 progress2
+{txt}
+{com}. 
+. gen date_num = due_date 
+{txt}
+{com}. order date_num, after(due_date)
+{txt}
+{com}. sort date2 
+{txt}
+{com}. 
+. ** Paper listing in 2019
+. preserve
+{txt}
+{com}.         gen x1=1
+{txt}
+{com}.         ** Label the -date2- with the project title
+.         sort date2
+{txt}
+{com}.         labmask date2, values(paper)
+{txt}
+{com}.         #delimit ;
+{txt}delimiter now ;
+{com}.         graph twoway
+>                 (line due_date x1 if due_date>=21550 & due_date<=21914, lp("l") lc(gs12) lw(2))
+>         (sc due_date x1 if due_date>=21550 & due_date<=21914, s(o) msize(5) mc(gs0) yaxis(1 2) 
+>                                         mlabel(paper) mlabs(4) mlabc(gs0))
+>                 ,
+>                 plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 graphregion(margin(50 150 2 2) color(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 ysize(10) xsize(3.5)
+> 
+>                 /// X-axis for width
+>                 xlab(none, 
+>                 labs(40) nogrid notick glc(gs14) angle(0) labgap(3))
+>                 xscale(noline fill) 
+>                 xtitle("", margin(t=2) size(10))
+> 
+>                 /// Project titles 
+>                 ylab(21549 "                                                     ",
+>                 valuelabel labs(5) notick nogrid glc(gs14) angle(0) format(%9.0f) axis(1) labgap(10))
+>                 ytitle("", margin(r=3) size(large) axis(1))
+>                 yscale(reverse noline axis(1))
+> 
+>                 /// Month indicator
+>                 ylab(21549 "Jan" 21579 "Feb" 21609 "Mar" 21639 "Apr" 21669 "May" 21700 "Jun" 21730 "Jul" 21761 "Aug" 21792 "Sep" 21822 "Oct" 21853 "Nov" 21883 "Dec",
+>                 valuelabel labs(7) notick nogrid glc(gs14) angle(0) format(%9.0f) axis(2) labgap(10) )
+>                 ytitle("", margin(r=3) size(10) axis(2))
+>                 yscale(reverse noline axis(2))
+> 
+>                 legend(off size(10) position(12) bm(t=1 b=0 l=0 r=0) colf cols(2)
+>                 region(fcolor(gs16) lw(vthin) margin(l=2 r=2 t=2 b=2))
+>                 )
+>                 name(DataGroup_2019);
+{res}{txt}
+{com}.         #delimit cr
+{txt}delimiter now cr
+{com}. restore
+{txt}
+{com}. 
+. ** Paper progress in 2019
+. preserve
+{txt}
+{com}.         gen x1=1
+{txt}
+{com}.         #delimit ;
+{txt}delimiter now ;
+{com}.         graph twoway
+>                 (line due_date x1 if due_date>=21550 & due_date<=21914, lp("l") lc(gs12) lw(2))
+>         /// Progress
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==1, s(o) msize(5) mc("165 0 38") yaxis(1 2) mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==2, s(o) msize(5) mc("244 109 67") yaxis(1 2) mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==3, s(o) msize(5) mc("254 224 139") yaxis(1 2) mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==4, s(o) msize(5) mc("217 239 139") yaxis(1 2) mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==5, s(o) msize(5) mc("102 189 99") yaxis(1 2) mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==6, s(o) msize(5) mc("0 104 55") yaxis(1 2) mlabel(paper) mlabs(4) mlabc(gs0))
+>                 ,
+>                 plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 graphregion(margin(50 150 2 2) color(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 ysize(10) xsize(3.5)
+> 
+>                 /// X-axis for width
+>                 xlab(none, 
+>                 labs(40) nogrid notick glc(gs14) angle(0) labgap(3))
+>                 xscale(noline fill) 
+>                 xtitle("", margin(t=2) size(10))
+> 
+>                 /// Project titles 
+>                 ylab(21549 "                                                     ",
+>                 valuelabel labs(5) notick nogrid glc(gs14) angle(0) format(%9.0f) axis(1) labgap(10))
+>                 ytitle("", margin(r=3) size(large) axis(1))
+>                 yscale(reverse noline axis(1))
+> 
+>                 /// Month indicator
+>                 ylab(21549 "Jan" 21579 "Feb" 21609 "Mar" 21639 "Apr" 21669 "May" 21700 "Jun" 21730 "Jul" 21761 "Aug" 21792 "Sep" 21822 "Oct" 21853 "Nov" 21883 "Dec",
+>                 valuelabel labs(7) notick nogrid glc(gs14) angle(0) format(%9.0f) axis(2) labgap(10))
+>                 ytitle("", margin(r=3) size(10) axis(2))
+>                 yscale(reverse noline axis(2))
+> 
+>                 legend(off size(10) position(12) bm(t=1 b=0 l=0 r=0) colf cols(2)
+>                 region(fcolor(gs16) lw(vthin) margin(l=2 r=2 t=2 b=2))
+>                 )
+>                 name(Progress_2019);
+{res}{txt}
+{com}.         #delimit cr
+{txt}delimiter now cr
+{com}. restore
+{txt}
+{com}. 
+. ** HAMBLETON Papers in 2019
+. preserve
+{txt}
+{com}.         gen x1=0
+{txt}
+{com}.         keep if lead=="IRH"
+{txt}(18 observations deleted)
+
+{com}.         #delimit ;
+{txt}delimiter now ;
+{com}.         graph twoway
+>                 (line due_date x1 if due_date>=21550 & due_date<=21914, lp("l") lc(gs12) lw(2))
+>         /// Progress
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==1, s(o) msize(5) mc("165 0 38") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==2, s(o) msize(5) mc("244 109 67") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==3, s(o) msize(5) mc("254 224 139") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==4, s(o) msize(5) mc("217 239 139") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==5, s(o) msize(5) mc("102 189 99") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==6, s(o) msize(5) mc("0 104 55") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 ,
+>                 plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 graphregion(color(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 ysize(10) xsize(3.5)
+> 
+>                 /// X-axis for width
+>                 xlab(none, 
+>                 labs(4) nogrid notick glc(gs14) angle(0))
+>                 xscale(noline range(0(1)10) ) 
+>                 xtitle("", size(10))
+> 
+>                 /// Month indicator
+>                 ylab(21550 "Jan" 21579 "Feb" 21609 "Mar" 21639 "Apr" 21669 "May" 21700 "Jun" 21730 "Jul" 21761 "Aug" 21792 "Sep" 21822 "Oct" 21853 "Nov" 21883 "Dec",
+>                 valuelabel labs(7) notick nogrid glc(gs14) angle(0) format(%9.0f) labgap(5))
+>                 ytitle("", size(10))
+>                 yscale(reverse noline range(21550(10)21914))
+> 
+>                 legend(size(4) position(11) bm(t=1 b=0 l=0 r=0) colf cols(3)
+>                 region(fcolor(gs16) lw(vthin) margin(l=2 r=2 t=2 b=2)) order(2 3 4 5 6 7)
+>                 lab(2 "not started")
+>                 lab(3 "planned")
+>                 lab(4 "analysed")
+>                 lab(5 "drafted")
+>                 lab(6 "submitted")
+>                 lab(7 "accepted")
+>                 )
+>                 name(IRH_2019);
+{res}{txt}
+{com}.         #delimit cr
+{txt}delimiter now cr
+{com}. restore
+{txt}
+{com}. 
+. 
+. 
+. ** HOWITT Papers in 2019
+. preserve
+{txt}
+{com}.         gen x1=0
+{txt}
+{com}.         keep if lead=="CH"
+{txt}(24 observations deleted)
+
+{com}.         ** Label the -date2- with the project title
+.         #delimit ;
+{txt}delimiter now ;
+{com}.         graph twoway
+>                 (line due_date x1 if due_date>=21550 & due_date<=21914, lp("l") lc(gs12) lw(2))
+>         /// Progress
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==1, s(o) msize(5) mc("165 0 38") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==2, s(o) msize(5) mc("244 109 67") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==3, s(o) msize(5) mc("254 224 139") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==4, s(o) msize(5) mc("217 239 139") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==5, s(o) msize(5) mc("102 189 99") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==6, s(o) msize(5) mc("0 104 55") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 ,
+>                 plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 graphregion(color(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 ysize(10) xsize(3.5)
+> 
+>                 /// X-axis for width
+>                 xlab(none, 
+>                 labs(4) nogrid notick glc(gs14) angle(0))
+>                 xscale(noline range(0(1)10) ) 
+>                 xtitle("", size(10))
+> 
+>                 /// Month indicator
+>                 ylab(21550 "Jan" 21579 "Feb" 21609 "Mar" 21639 "Apr" 21669 "May" 21700 "Jun" 21730 "Jul" 21761 "Aug" 21792 "Sep" 21822 "Oct" 21853 "Nov" 21883 "Dec",
+>                 valuelabel labs(7) notick nogrid glc(gs14) angle(0) format(%9.0f) labgap(5))
+>                 ytitle("", size(10))
+>                 yscale(reverse noline range(21550(10)21914))
+> 
+>                 legend(size(4) position(11) bm(t=1 b=0 l=0 r=0) colf cols(3)
+>                 region(fcolor(gs16) lw(vthin) margin(l=2 r=2 t=2 b=2)) order(2 3 4 5 6 7)
+>                 lab(2 "not started")
+>                 lab(3 "planned")
+>                 lab(4 "analysed")
+>                 lab(5 "drafted")
+>                 lab(6 "submitted")
+>                 lab(7 "accepted")
+>                 )
+>                 name(CH_2019);
+{res}{txt}
+{com}.         #delimit cr
+{txt}delimiter now cr
+{com}. restore
+{txt}
+{com}. 
+. 
+. ** BROWN Papers in 2019
+. preserve
+{txt}
+{com}.         gen x1=0
+{txt}
+{com}.         keep if lead=="CB"
+{txt}(28 observations deleted)
+
+{com}.         ** Label the -date2- with the project title
+.         #delimit ;
+{txt}delimiter now ;
+{com}.         graph twoway
+>                 (line due_date x1 if due_date>=21550 & due_date<=21914, lp("l") lc(gs12) lw(2))
+>         /// Progress
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==1, s(o) msize(5) mc("165 0 38") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==2, s(o) msize(5) mc("244 109 67") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==3, s(o) msize(5) mc("254 224 139") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==4, s(o) msize(5) mc("217 239 139") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==5, s(o) msize(5) mc("102 189 99") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 (sc due_date  x1 if due_date>=21550 & due_date<=21914 & progress2==6, s(o) msize(5) mc("0 104 55") mlabel(paper) mlabs(4) mlabc(gs0))
+>                 ,
+>                 plotregion(c(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 graphregion(color(gs16) ic(gs16) ilw(thin) lw(thin))
+>                 ysize(10) xsize(3.5)
+> 
+>                 /// X-axis for width
+>                 xlab(none, 
+>                 labs(4) nogrid notick glc(gs14) angle(0))
+>                 xscale(noline range(0(1)10) ) 
+>                 xtitle("", size(10))
+> 
+>                 /// Month indicator
+>                 ylab(21550 "Jan" 21579 "Feb" 21609 "Mar" 21639 "Apr" 21669 "May" 21700 "Jun" 21730 "Jul" 21761 "Aug" 21792 "Sep" 21822 "Oct" 21853 "Nov" 21883 "Dec",
+>                 valuelabel labs(7) notick nogrid glc(gs14) angle(0) format(%9.0f) labgap(5))
+>                 ytitle("", size(10))
+>                 yscale(reverse noline range(21550(10)21914))
+> 
+>                 legend(size(4) position(11) bm(t=1 b=0 l=0 r=0) colf cols(3)
+>                 region(fcolor(gs16) lw(vthin) margin(l=2 r=2 t=2 b=2)) order(2 3 4 5 6 7)
+>                 lab(2 "not started")
+>                 lab(3 "planned")
+>                 lab(4 "analysed")
+>                 lab(5 "drafted")
+>                 lab(6 "submitted")
+>                 lab(7 "accepted")
+>                 )
+>                 name(CB_2019);
+{res}{txt}
+{com}.         #delimit cr
+{txt}delimiter now cr
+{com}. restore
+{txt}
+{com}. 
+{txt}end of do-file
+
+{com}. do "X:\OneDrive - The University of the West Indies\repo_ianhambleton\repo_papers\paper2020_duedates.do"
+{txt}
+{com}. ** HEADER -----------------------------------------------------
+. **  DO-FILE METADATA
+.     //  algorithm name                          papers2019_duedates.do
+.     //  project:                                        Data Group planning
+.     //  analysts:                                       Ian HAMBLETON
+.     //  date last modified                  16-April-2019
+.     //  algorithm task                          Paper production timeline
+. 
+.     ** General algorithm set-up
+.     version 15
+{txt}
+{com}.     clear all
+{res}{txt}
+{com}.     macro drop _all
+{txt}
+{com}.     set more 1
+{txt}
+{com}.     set linesize 80
+{txt}
+{com}. 
+.     ** Set working directories: this is for DATASET and LOGFILE import and export
+.     ** DATASETS to encrypted SharePoint folder
+.     local datapath "X:\OneDrive - The University of the West Indies\repo_ianhambleton\repo_papers"
+{txt}
+{com}.     ** LOGFILES to unencrypted OneDrive folder (.gitignore set to IGNORE log files on PUSH to GitHub)
+.     local logpath X:\OneDrive - The University of the West Indies\repo_ianhambleton\repo_papers
+{txt}
+{com}. 
+.     ** Close any open log file and open a new log file
+.     capture log close
+{smcl}
+{com}{sf}{ul off}
